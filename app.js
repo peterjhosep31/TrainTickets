@@ -5,8 +5,9 @@ const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-const { promises } = require("nodemailer/lib/xoauth2/index.js");
-const stripe = require("stripe") ("sk_test_51LVHhtJqwXpikLDTcXdoFKWZdrGnhFUIaJuRKyNpcsZJLUmmt3if2wkzWI5xrjAeJ3VAyEw7Ja0VA9hWMEfPIKET00IjVxWO7G");
+const { body, validationResult } = require("express-validator");
+const stripe = require("stripe"); const { captureRejectionSymbol } = require("nodemailer/lib/xoauth2");
+("sk_test_51LVHhtJqwXpikLDTcXdoFKWZdrGnhFUIaJuRKyNpcsZJLUmmt3if2wkzWI5xrjAeJ3VAyEw7Ja0VA9hWMEfPIKET00IjVxWO7G");
 const db = new sqlite3.Database("./db/traintiquets.db");
 const server = express();
 
@@ -18,7 +19,7 @@ server.use(cookieParser());
 const port = 3105;
 const timeExp = 1000 * 60 * 60;
 
-// import { fecha } from "/public/js/tiquete.js";
+
 
 
 server.use(
@@ -70,47 +71,68 @@ server.get("/registro", (req, res) => {
   res.render("registro");
 });
 
-server.post("/registro", (req, res) => {
-  let nombres = req.body.nombres;
-  let apellidos = req.body.apellidos;
-  let correo = req.body.correo;
-  let contraseña = req.body.contraseña;
-  const saltRounds = 10;
-  const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(contraseña, salt);
-  db.get(
-    `INSERT INTO registro(nombres, apellidos, correo,  contraseña) VALUES(?,?,?,?)`,
-    [nombres, apellidos, correo, hash],
-    function (error) {
-      if (!error) {
-        console.log("insert ok");
-        return res.render("principal");
-      } else {
-        return console.log("inset error", error);
+server.post("/registro", [
+  body('nombres', 'El tipo de datos es incorrecto, pudo haber ingresado algun caracter especial, algun numero o poder esatdo vacio.').exists().isLength({ min: 3 }),
+  body('apellidos', 'El tipo de datos es incorrecto, pudo haber ingresado algun caracter especial, algun numero o poder esatdo vacio.').exists().isLength({ min: 3 }),
+  body('correo', 'El correo ingresado es invalido, por favor retifiquelo').exists().isEmail(),
+  body('contraseña', 'La contraseña debe tener como minimo 6 caracteres y un caracter especial').exists().isLength({ min: 6 })
+], (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const valores = req.body;
+    const validaciones = errors.array();
+    return res.render('registro', { valores: valores, validaciones: validaciones, fechaActual: fechaActual });
+  } else {
+    let nombres = req.body.nombres;
+    let apellidos = req.body.apellidos;
+    let correo = req.body.correo;
+    let contraseña = req.body.contraseña;
+    const saltRounds = 10;
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(contraseña, salt);
+    db.get(
+      `INSERT INTO registro(nombres, apellidos, correo,  contraseña) VALUES(?,?,?,?)`,
+      [nombres, apellidos, correo, hash],
+      function (error) {
+        if (!error) {
+          console.log("insert ok");
+          const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            auth: {
+              user: "tickettrain121@gmail.com",
+              pass: "djdmzdctvzccztor",
+            },
+          });
+          transporter
+            .sendMail({
+              from: "tickettrain121@gmail.com",
+              to: correo,
+              subject: "Registro exitoso",
+              html: "<h1>SU REGISTRO FUE EXITOSO</h1><p>Apreciado Usuario(a), el presente correo es para informar que ha sido registrado(a) correctamente en nuestro aplicativo web <b>Train Tiquets</b> Esperamos que nuestra aplicación sea de su agrado y disfrute de todas las herramientas brindadas en esta web</p>",
+            })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+          return res.render("principal");
+        } else {
+          if (error) {
+            let errorPrimaria = ["El correo ya esta registrado, por favor intente con otro o recepere la contraseña de este"];
+            if (error.errno == 19) {
+              res.render('registro', { errorPrimaria: errorPrimaria, error: error });
+            }
+
+
+          }
+          return console.log("inset error", error);
+        }
       }
-    }
-  );
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    auth: {
-      user: "tickettrain121@gmail.com",
-      pass: "djdmzdctvzccztor",
-    },
-  });
-  transporter
-    .sendMail({
-      from: "tickettrain121@gmail.com",
-      to: correo,
-      subject: "Registro exitoso",
-      html: "<h1>SU REGISTRO FUE EXITOSO</h1><p>Apreciado Usuario(a), el presente correo es para informar que ha sido registrado(a) correctamente en nuestro aplicativo web <b>Train Tiquets</b> Esperamos que nuestra aplicación sea de su agrado y disfrute de todas las herramientas brindadas en esta web</p>",
-    })
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    );
+  }
 });
 
 
@@ -216,8 +238,8 @@ server.post("/cambiar", (req, res) => {
             },
             (error) => {
               if (!error) {
-                return res.render("principal");
                 console.log("UPDATE OK");
+                return res.render("principal");
               }
             }
           );
@@ -230,13 +252,11 @@ server.post("/cambiar", (req, res) => {
 
 
 server.get("/comprar", (req, res) => {
-
   res.render("comprar")
 })
 
-server.post("/comprandoTiquete", async (req, res) => {
-  let fecha = req.body.fecha;
-  res.send("fecha");
+server.get("/comprandoTiquete", (req, res) => {
+  res.send("fechaActual");
 })
 
 server.listen(port, () => {
@@ -261,3 +281,10 @@ let keys = {
   public: "pk_test_51LVHhtJqwXpikLDT6RNHgqBeZXhvcdlDGDzP0yIINeObT7O53DGHFHgkSvXOMhPqaIq1lQr66fUcb9frmz1LRXyB00ViFE36IL",
   secret: "sk_test_51LVHhtJqwXpikLDTcXdoFKWZdrGnhFUIaJuRKyNpcsZJLUmmt3if2wkzWI5xrjAeJ3VAyEw7Ja0VA9hWMEfPIKET00IjVxWO7G"
 }
+
+
+const fecha = new Date();
+const añoActual = fecha.getFullYear();
+const diaActual = fecha.getDate();
+const mesActual = fecha.getMonth() + 1;
+const fechaActual = añoActual + "-" + mesActual + "-" + diaActual;
