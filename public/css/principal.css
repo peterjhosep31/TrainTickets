@@ -14,7 +14,18 @@
     align-items: center;
     border-bottom: 10px solid #E8AA42;
 }
+#img{
+    background-image: url( https://res.cloudinary.com/fashion-friendly/image/upload/v1661774795/Train%20Tickets/fondos/tren_tfpdwc.jpg );
+    background-repeat: no-repeat;
+    background-size: 100%;
+    opacity: 60%;
 
+    width: 100%;
+     display: flex;
+    justify-content: center;
+    align-items: center ;
+    height: 79.8vh;
+}
 .header ul {
     display: flex;
     flex-direction: row;
