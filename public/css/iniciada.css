@@ -227,6 +227,12 @@ button {
     font-weight: bold;
 }
 
+.alert {
+    position: absolute;
+    background: #eca52ae5;
+    color: #24282B;
+}
+
 footer {
     display: flex;
     justify-content: center;

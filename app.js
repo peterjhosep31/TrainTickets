@@ -6,7 +6,8 @@ const sqlite3 = require("sqlite3");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const { body, validationResult } = require("express-validator");
-const stripe = require("stripe"); const { captureRejectionSymbol } = require("nodemailer/lib/xoauth2");
+const stripe = require("stripe");
+const { captureRejectionSymbol } = require("nodemailer/lib/xoauth2");
 ("sk_test_51LVHhtJqwXpikLDTcXdoFKWZdrGnhFUIaJuRKyNpcsZJLUmmt3if2wkzWI5xrjAeJ3VAyEw7Ja0VA9hWMEfPIKET00IjVxWO7G");
 const db = new sqlite3.Database("./db/traintiquets.db");
 const server = express();
@@ -74,7 +75,7 @@ server.get("/registro", (req, res) => {
 server.post("/registro", [
   body('nombres', 'El tipo de datos es incorrecto, pudo haber ingresado algun caracter especial, algun numero o poder esatdo vacio.').exists().isLength({ min: 3 }),
   body('apellidos', 'El tipo de datos es incorrecto, pudo haber ingresado algun caracter especial, algun numero o poder esatdo vacio.').exists().isLength({ min: 3 }),
-  body('correo', 'El correo ingresado es invalido, por favor retifiquelo').exists().isEmail(),
+  body('correo', 'El correo ingresado es invalido, por favor retifiquelo').exists().isEmail().normalizeEmail(),
   body('contraseña', 'La contraseña debe tener como minimo 6 caracteres y un caracter especial').exists().isLength({ min: 6 })
 ], (req, res) => {
   const errors = validationResult(req);
@@ -101,13 +102,13 @@ server.post("/registro", [
             host: "smtp.gmail.com",
             port: 587,
             auth: {
-              user: "tickettrain121@gmail.com",
-              pass: "djdmzdctvzccztor",
+              user: "11traintickets11@gmail.com",
+              pass: "whvzzawcqsprwwgu",
             },
           });
           transporter
             .sendMail({
-              from: "tickettrain121@gmail.com",
+              from: "11traintickets11@gmail.com",
               to: correo,
               subject: "Registro exitoso",
               html: "<h1>SU REGISTRO FUE EXITOSO</h1><p>Apreciado Usuario(a), el presente correo es para informar que ha sido registrado(a) correctamente en nuestro aplicativo web <b>Train Tiquets</b> Esperamos que nuestra aplicación sea de su agrado y disfrute de todas las herramientas brindadas en esta web</p>",
@@ -170,13 +171,13 @@ server.post("/correoAutentificado", (req, res) => {
           host: "smtp.gmail.com",
           port: 587,
           auth: {
-            user: "tickettrain121@gmail.com",
-            pass: "djdmzdctvzccztor",
+            user: "11traintickets11@gmail.com",
+            pass: "whvzzawcqsprwwgu",
           },
         });
         transporter
           .sendMail({
-            from: "tickettrain121@gmail.com",
+            from: "11traintickets11@gmail.com",
             to: correo,
             subject: "Recuperar contraseña",
             html:
@@ -239,7 +240,8 @@ server.post("/cambiar", (req, res) => {
             (error) => {
               if (!error) {
                 console.log("UPDATE OK");
-                return res.render("principal");
+                let array = ['Se ha actualizado su contraseña exitosamente'];
+                return res.render("principal", { error: error, array: array });
               }
             }
           );
@@ -255,8 +257,50 @@ server.get("/comprar", (req, res) => {
   res.render("comprar")
 })
 
+server.get("/comprarTrue", (req, res) => {
+  res.render("compraExitosa")
+})
+
 server.get("/comprandoTiquete", (req, res) => {
-  res.send("fechaActual");
+  let destino = req.query.destino;
+  let hora = req.query.hora;
+  let fecha = req.query.fecha;
+
+  console.log(destino, hora, fecha), "--------------------hola------------------";
+
+  let error;
+  let errorNull = ["Lo sentimos le hace falta llenar mas datos, coorrobore por favor e intente de nuvo"];
+  let errorDate = ["Lo sentimos la fecha es anterior a la fecha actual, por favor corrijala he intente de nuevo"];
+  let errorHour = ["Lo sentimos el tren que sale a esta hora ya salio, si quieres escoje uno mas tarde a la hora actual: " + hour];
+  let pasarela = false;
+
+  if (destino != 'undefined' && hora != 'undefined' && fecha != '') {
+    console.log('si hay data');
+    if (fecha >= fechaActual) {
+      console.log('la fecha es valida')
+      if (hora < hour) {
+        pasarela = true;
+        console.log("bakend:", hour, "-  frond:", hora);
+      } else {
+        error = 1;
+        console.log('Este tren ya salio', error);
+        res.render('iniciada', { error: error, errorHour: errorHour })
+      }
+    } else {
+      error = 1;
+      console.log('la fecha es invalida', error);
+      res.render('iniciada', { error: error, errorDate: errorDate })
+    }
+  } else {
+    error = 1;
+    console.log('no hay data', error)
+    res.render('iniciada', { error: error, errorNull: errorNull })
+  }
+
+})
+
+server.get("/comprarFalse", (req, res) => {
+  res.render("compraCanselada")
 })
 
 server.listen(port, () => {
@@ -285,6 +329,26 @@ let keys = {
 
 const fecha = new Date();
 const añoActual = fecha.getFullYear();
-const diaActual = fecha.getDate();
+
 const mesActual = fecha.getMonth() + 1;
-const fechaActual = añoActual + "-" + mesActual + "-" + diaActual;
+let mesActuall;
+if (mesActual > 0 && mesActual < 10) {
+  String(mesActual)
+  mesActuall = '0' + mesActual
+} else {
+  mesActuall = mesActual;
+}
+
+
+const diaActual = fecha.getDate();
+let diaActuall;
+if (diaActual > 0 && diaActual < 10) {
+  String(diaActual)
+  diaActuall = '0' + diaActual
+} else {
+  diaActuall = diaActual;
+}
+
+var hour = fecha.toLocaleTimeString();
+
+const fechaActual = añoActual + "-" + mesActuall + "-" + diaActuall;
