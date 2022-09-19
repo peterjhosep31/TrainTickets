@@ -15,24 +15,25 @@
     border-bottom: 10px solid #E8AA42;
 }
 
-#img {
-    background-image: url(https://res.cloudinary.com/fashion-friendly/image/upload/v1661774795/Train%20Tickets/fondos/tren_tfpdwc.jpg );
-    background-repeat: no-repeat;
-    background-size: 100%;
-    opacity: 60%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 79.8vh;
-}
-
 .header ul {
     display: flex;
     flex-direction: row;
-}
 
+}
+#img{
+    background-image: url( https://res.cloudinary.com/fashion-friendly/image/upload/v1661774795/Train%20Tickets/fondos/tren_tfpdwc.jpg );
+    background-repeat: no-repeat;
+    background-size: 100%;
+    opacity: 60%;
+
+    width: 100%;
+     display: flex;
+    justify-content: center;
+    align-items: center ;
+    height: 79.8vh;
+}
 .header li {
+
     display: flex;
     padding: 0 30px;
     float: right;
@@ -62,12 +63,7 @@ main {
     display: flex;
     justify-content: center;
     background-color: #24282B;
-}
 
-.alert {
-    position: absolute;
-    background: #eca52ae5;
-    color: #24282B;
 }
 
 footer {

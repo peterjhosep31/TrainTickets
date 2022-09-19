@@ -1,12 +1,14 @@
 function destino() {
   const destino = document.getElementById("opcionDestino");
   document.getElementById("imgBandera").src = destino.value;
+  destinoNombre();
+
   const fecha = new Date();
   const añoActual = fecha.getFullYear();
   const diaActual = fecha.getDate();
   const mesActual = fecha.getMonth() + 1;
   const fechaActual = añoActual + "-" + mesActual + "-" + diaActual;
-  destinoNombre();
+  console.log(fechaActual);
 }
 
 function horario() {
@@ -15,11 +17,15 @@ function horario() {
   horarioDia()
 }
 
+
+
+
 function fecha() {
   const fechaViaje = document.getElementById("fecha");
-  let dia = fechaViaje.value;
+  let fecha = fechaViaje.value;
+
   const fechaHtml = document.getElementById("fechaViaje");
-  fechaHtml.innerHTML = dia;
+  return (fechaHtml.innerHTML = fecha), (fecha);
 }
 
 function horarioDia() {
@@ -27,30 +33,31 @@ function horarioDia() {
   const hora = document.getElementById("hora");
 
   if (horarioDia.src == "https://res.cloudinary.com/anonimous/image/upload/v1661171511/train%20tickets/horario/descarga_sr7nti_n1vbo1.png") {
-    horaDia = "mañana";
+    let horario = "mañana";
     return (hora.innerHTML = "10 : 00 a.m");
   } else {
     if (horarioDia.src == "https://res.cloudinary.com/anonimous/image/upload/v1661172340/train%20tickets/horario/descarga_jn6fsz_zr89co.png") {
-      horaDia = "tarde";
+      let horario = "tarde";
       return (hora.innerHTML = "3 : 00 p.m");
     } else {
-      horaDia = "noche";
+      let horario = "noche";
       return (hora.innerHTML = "8 : 00 p.m");
     }
   }
 }
 
-function destinoNombre() {
+function destinoNombre(destinoFinal) {
   const destino = document.getElementById("imgBandera");
   if (
     destino.src ==
     "https://res.cloudinary.com/anonimous/image/upload/v1661169566/train%20tickets/banderas/francia_ip2zud_e3dh7f.png"
   ) {
-    destinoFinal = "francea";
+    let destinoFinal = "francea";
+    return destinoFinal;
   } else {
-    destinoFinal = "londres";
+    let destinoFinal = "londres";
+    return destinoFinal;
   }
-  return destinoFinal;
 }
 
 function sentidoViaje() {
@@ -76,39 +83,21 @@ function ramdom() {
   return console.log(codigo);
 }
 
-
-function pickData() {
-  const datePick = document.getElementById('fechaViaje');
-  dia = (datePick.textContent).toString();
-};
-
-let destinoFinal;
-let horaDia;
-let hora;
-let dia;
-
-if (horaDia == 'mañana') {
-  hora = 4+":"+00+":"+00;
-} else if (horaDia == 'tarde') {
-  hora = 15+":"+00+":"+00;
-} else {
-  hora = 15+":"+00+":"+00;
-}
-
 function dataTikect() {
-  console.log(horaDia, hora);
-  let envio = new FormData();
-  envio.append('destino', 'h');
-  envio.append('fecha', 'hh')
-  envio.append('hora', 'hhh')
-  fetch(`http://localhost:3105/comprandoTiquete?destino=${destinoFinal}&hora=${hora}&fecha=${dia}`, {
+  let formData = new FormData();
+  formData.append('fecha', 'John');
+  formData.append('horario', 'John123');
+  formData.append('destinoFinal', 'John123');
+  fetch(`http://localhost:3105/comprandoTiquete?fecha=${fecha}&horario=${horario}&destinoFinal=${destinoFinal}`, {
     method: 'get'
   }).then(response => {
+    //handle response
     console.log(response);
-  }).then(data => {
-    //handle data
-    console.log(data);
   })
+    .then(data => {
+      //handle data
+      console.log(data);
+    })
     .catch(error => {
       //handle error
       console.log(error)

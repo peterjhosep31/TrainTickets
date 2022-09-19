@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil</title>
+    <title>TrainTickets</title>
     <link rel="stylesheet" href="css/cuenta.css">
 </head>
 
@@ -44,19 +44,23 @@
     </div>
 
     <div class="caja2">
-        <% if (typeof rows !='undefined' ) { %>
-            <p class="editar"><b>Perfil</b></p>
-            <img class="imagen1"
-                src="https://us.123rf.com/450wm/alekseyvanin/alekseyvanin1704/alekseyvanin170403663/76699411-vector-de-icono-de-usuario-ilustraci%C3%B3n-de-logotipo-s%C3%B3lido-de-perfil-pictograma-aislado-en-blanco.jpg">
-            <p class="nom">Nombre: <%= rows.nombre %>
-            </p>
-            <p class="ape">Apellido: <%= rows.apellido %>
-            </p>
-            <p class="corr">Correo: <%= rows.correo %>
-            </p>
-            <% } %>
+        <p class="editar"><b>Perfil</b></p>
+        <img class="imagen1"
+            src="https://us.123rf.com/450wm/alekseyvanin/alekseyvanin1704/alekseyvanin170403663/76699411-vector-de-icono-de-usuario-ilustraci%C3%B3n-de-logotipo-s%C3%B3lido-de-perfil-pictograma-aislado-en-blanco.jpg">
+        <p class="nom">Nombre: <%= data.nombre %>
+        </p>
+        <p class="ape">Apellido: <%= data.apellido %>
+        </p>
+        <p class="corr">Correo: <%= data.correo %>
+        </p>
+        <p class="iden">identificacion: <%= data.identificacion %>
+        </p>
     </div>
-
+    <footer>
+        <p>
+            &copy;2022 Los Ilucionistas<br>tickettrain121@gmail.com
+        </p>
+    </footer>
 </body>
 
 </html>
